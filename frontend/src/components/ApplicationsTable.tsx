@@ -20,6 +20,7 @@ import {
 import { visuallyHidden } from "@mui/utils";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import { Edit } from "@mui/icons-material";
 
 interface Data {
   id: number;
@@ -169,6 +170,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             </TableSortLabel>
           </TableCell>
         ))}
+        <TableCell />
       </TableRow>
     </TableHead>
   );
@@ -345,8 +347,15 @@ export default function ApplicationsTable() {
                     {row.name}
                   </TableCell>
                   <TableCell align="left">{row.date}</TableCell>
-                  <TableCell align="left">{row.amount}</TableCell>
+                  <TableCell align="left">${row.amount?.toLocaleString()}</TableCell>
                   <TableCell align="left">{row.status}</TableCell>
+                  <TableCell align="right" sx={{ padding: "0 8px" }}>
+                    <Tooltip title="Edit">
+                      <IconButton href={`application/${row.id}`}>
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
                 </TableRow>
               );
             })}
