@@ -10,7 +10,7 @@ import { Application } from "../types";
 
 export default function ApplicationForm({ application }: { application?: Application | null }) {
   type Field = {
-    name: 'name' | 'address' | 'salary' | 'expenses' | 'assets' | 'liabilities';
+    name: 'name' | 'address' | 'salary' | 'expenses' | 'assets' | 'liabilities' | 'amount'
     label: string;
     prefix: boolean;
   }
@@ -22,6 +22,7 @@ export default function ApplicationForm({ application }: { application?: Applica
     expenses: application?.expenses || '',
     assets: application?.assets || '',
     liabilities: application?.liabilities || '',
+    amount: application?.amount || '',
   });
 
   const [errors, setErrors] = React.useState({
@@ -31,6 +32,7 @@ export default function ApplicationForm({ application }: { application?: Applica
     expenses: false,
     assets: false,
     liabilities: false,
+    amount: false,
   });
 
   const fields: Field[] = [
@@ -64,6 +66,11 @@ export default function ApplicationForm({ application }: { application?: Applica
       label: "Liabilities",
       prefix: true,
     },
+    {
+      name: "amount",
+      label: "Amount",
+      prefix: true,
+    },
   ]
 
   const prefix = {
@@ -89,7 +96,8 @@ export default function ApplicationForm({ application }: { application?: Applica
       salary: !formData.salary,
       expenses: !formData.expenses,
       assets: !formData.assets,
-      liabilities: !formData.liabilities
+      liabilities: !formData.liabilities,
+      amount: !formData.amount
     });
 
     // check if there are any errors
