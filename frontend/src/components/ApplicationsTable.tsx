@@ -21,34 +21,15 @@ import { visuallyHidden } from "@mui/utils";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { Edit } from "@mui/icons-material";
+import { Application } from "../types";
 
-interface Data {
+interface Headers {
   id: number;
   name: string;
   date: string;
   amount: number;
   status: string;
 }
-
-function createData(
-  id: number,
-  name: string,
-  date: string,
-  amount: number,
-  status: string,
-): Data {
-  return { id, name, date, amount, status };
-}
-
-const rows = [
-  createData(1, "Application 1", "2024-01-01", 5000, "Complete"),
-  createData(2, "Application 2", "2024-02-01", 15000, "Pending"),
-  createData(3, "Application 3", "2024-03-01", 25000, "Pending"),
-  createData(4, "Application 4", "2024-04-01", 500, "Pending"),
-  createData(5, "Application 5", "2024-05-01", 2000, "Pending"),
-  createData(6, "Application 6", "2024-06-01", 3000, "Pending"),
-  createData(7, "Application 7", "2024-07-01", 5000, "Pending"),
-];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -77,7 +58,7 @@ function getComparator<Key extends keyof any>(
 
 interface HeadCell {
   disablePadding: boolean;
-  id: keyof Data;
+  id: keyof Headers;
   label: string;
   numeric: boolean;
 }
@@ -113,7 +94,7 @@ interface EnhancedTableProps {
   numSelected: number;
   onRequestSort: (
     event: React.MouseEvent<unknown>,
-    property: keyof Data,
+    property: keyof Headers,
   ) => void;
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
   order: Order;
@@ -131,7 +112,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     onRequestSort,
   } = props;
   const createSortHandler =
-    (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
+    (property: keyof Headers) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
     };
 
@@ -232,16 +213,21 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   );
 }
 
-export default function ApplicationsTable() {
+export default function ApplicationsTable({ applications }: { applications: Application[] }) {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("date");
-  const [selected, setSelected] = React.useState<readonly number[]>([]);
+  const [orderBy, setOrderBy] = React.useState<keyof Headers>("date");
+  const [selected, setSelected] = React.useState<readonly string[]>([]);
+  const [applicationsData, setApplicationsData] = React.useState<Application[]>([]);
+
+  React.useEffect(() => {
+    setApplicationsData(applications);
+  }, [applications]);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
-    property: keyof Data,
+    property: keyof Headers,
   ) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -250,16 +236,16 @@ export default function ApplicationsTable() {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked && selected.length === 0) {
-      const newSelected = rows.map((n) => n.id);
+      const newSelected = applicationsData.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
+  const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
     const selectedIndex = selected.indexOf(id);
-    let newSelected: readonly number[] = [];
+    let newSelected: readonly string[] = [];
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id);
@@ -289,14 +275,15 @@ export default function ApplicationsTable() {
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - applicationsData.length) : 0;
 
-  const visibleRows = React.useMemo(
-    () =>
-      [...rows]
-        .sort(getComparator(order, orderBy))
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rowsPerPage],
+  const visibleRows = React.useMemo(() => {
+    // console.log(applicationsData)
+    return [...applicationsData]
+      .sort(getComparator(order, orderBy))
+      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    }
+    ,[order, orderBy, page, rowsPerPage, applicationsData]
   );
 
   return (
@@ -310,7 +297,7 @@ export default function ApplicationsTable() {
             orderBy={orderBy}
             onSelectAllClick={handleSelectAllClick}
             onRequestSort={handleRequestSort}
-            rowCount={rows.length}
+            rowCount={applicationsData.length}
           />
           <TableBody>
             {visibleRows.map((row, index) => {
@@ -360,7 +347,7 @@ export default function ApplicationsTable() {
               );
             })}
             {emptyRows > 0 && (
-              <TableRow>
+              <TableRow key="empty">
                 <TableCell colSpan={6} />
               </TableRow>
             )}
@@ -370,7 +357,7 @@ export default function ApplicationsTable() {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={applicationsData.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

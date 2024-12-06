@@ -5,18 +5,20 @@ import { ObjectId } from "mongodb";
 const router = express.Router();
 
 // Get all applications
-router.get("/applications", async (req, res) => {
+router.get("/", async (req, res) => {
   let collection = await db.collection("applications");
   let results = await collection.find({})
-    .toArray();
-
-  res.send(results).status(200);
+    .toArray()
+  res.send(results.map((doc) => {
+    doc.id = doc._id.toString();
+    return doc
+  })).status(200);
 });
 
 // Get a single application
-router.get("/application/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   let collection = await db.collection("applications");
-  let query = {_id: ObjectId(req.params.id)};
+  let query = {_id: new ObjectId(req.params.id)};
   let result = await collection.findOne(query);
 
   if (!result) res.send("Not found").status(404);
@@ -24,7 +26,7 @@ router.get("/application/:id", async (req, res) => {
 });
 
 // Add a new document to the collection
-router.post("/application", async (req, res) => {
+router.post("/", async (req, res) => {
   let collection = await db.collection("applications");
   let newDocument = req.body;
   newDocument.date = new Date();
@@ -33,7 +35,7 @@ router.post("/application", async (req, res) => {
 });
 
 // Update an application
-router.patch("/application/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
   const query = { _id: ObjectId(req.params.id) };
   const updates = {
     $push: { comments: req.body }
