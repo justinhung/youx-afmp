@@ -87,7 +87,7 @@ export default function ApplicationForm({ application }: { application?: Applica
     setErrors({ ...errors, [name]: !value }); // further validation could be added here
   };
 
-  const submit = () => {
+  const submit = async () => {
     console.log(application, formData)
     // trigger form validation
     setErrors({
@@ -101,10 +101,30 @@ export default function ApplicationForm({ application }: { application?: Applica
     });
 
     // check if there are any errors
-    const hasErrors = Object.values(errors).some((error) => !error);
+    const hasErrors = Object.values(errors).some((error) => error);
     if (hasErrors) return
 
-    console.log('submit')
+    if (application) {
+      await fetch(`${import.meta.env.VITE_API_URL}/applications/${application.id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify(formData)
+        }
+      )
+    } else {
+      await fetch(`${import.meta.env.VITE_API_URL}/applications`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json"
+          },
+          body: JSON.stringify(formData)
+        }
+      )
+    }
   }
 
   return (

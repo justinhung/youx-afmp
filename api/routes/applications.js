@@ -30,6 +30,7 @@ router.post("/", async (req, res) => {
   let collection = await db.collection("applications");
   let newDocument = req.body;
   newDocument.date = new Date();
+  newDocument.status = 'Pending';
   let result = await collection.insertOne(newDocument);
   res.send(result).status(204);
 });
@@ -38,7 +39,7 @@ router.post("/", async (req, res) => {
 router.patch("/:id", async (req, res) => {
   const query = { _id: ObjectId(req.params.id) };
   const updates = {
-    $push: { comments: req.body }
+    $set: req.body
   };
 
   let collection = await db.collection("applications");
