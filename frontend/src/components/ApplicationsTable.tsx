@@ -278,13 +278,20 @@ export default function ApplicationsTable({ applications }: { applications: Appl
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - applicationsData.length) : 0;
 
   const visibleRows = React.useMemo(() => {
-    // console.log(applicationsData)
     return [...applicationsData]
       .sort(getComparator(order, orderBy))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     }
     ,[order, orderBy, page, rowsPerPage, applicationsData]
   );
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("en-AU", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
@@ -333,7 +340,7 @@ export default function ApplicationsTable({ applications }: { applications: Appl
                   >
                     {row.name}
                   </TableCell>
-                  <TableCell align="left">{row.date}</TableCell>
+                  <TableCell align="left">{formatDate(row.date)}</TableCell>
                   <TableCell align="left">${row.amount?.toLocaleString()}</TableCell>
                   <TableCell align="left">{row.status}</TableCell>
                   <TableCell align="right" sx={{ padding: "0 8px" }}>

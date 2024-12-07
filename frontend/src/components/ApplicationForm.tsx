@@ -7,6 +7,7 @@ import {
   TextField,
 } from "@mui/material";
 import { Application } from "../types";
+import { useNavigate } from "react-router-dom";
 
 export default function ApplicationForm({ application }: { application?: Application | null }) {
   type Field = {
@@ -87,8 +88,8 @@ export default function ApplicationForm({ application }: { application?: Applica
     setErrors({ ...errors, [name]: !value }); // further validation could be added here
   };
 
+  const navigate = useNavigate()
   const submit = async () => {
-    console.log(application, formData)
     // trigger form validation
     setErrors({
       name: !formData.name,
@@ -125,6 +126,7 @@ export default function ApplicationForm({ application }: { application?: Applica
         }
       )
     }
+    navigate("/")
   }
 
   return (

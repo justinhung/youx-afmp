@@ -21,8 +21,14 @@ router.get("/:id", async (req, res) => {
   let query = {_id: new ObjectId(req.params.id)};
   let result = await collection.findOne(query);
 
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
+  if (!result) {
+    res.send("Not found").status(404)
+  } else {
+    res.send({
+      ...result,
+      id: result._id,
+    }).status(200);
+  }
 });
 
 // Add a new document to the collection
@@ -37,9 +43,12 @@ router.post("/", async (req, res) => {
 
 // Update an application
 router.patch("/:id", async (req, res) => {
-  const query = { _id: ObjectId(req.params.id) };
+  const query = { _id: new ObjectId(req.params.id) };
   const updates = {
-    $set: req.body
+    $set: {
+      ...req.body,
+      status: 'Pending'
+    }
   };
 
   let collection = await db.collection("applications");
