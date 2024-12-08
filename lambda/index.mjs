@@ -21,14 +21,25 @@ export const handler = async (event) => {
   let data, collection, query;
   let statusCode = 200;
   const headers = {
-      'Content-Type': 'application/json',
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': 'https://main.d2060macrmw9rl.amplifyapp.com',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
   };
   const client = await connectToMongoDB()
   const db = client.db('youx-afmp')
 
   try {
-    if (path.startsWith('/applications/')) {
+    if (httpMethod === 'OPTIONS') {
+      return {
+        statusCode: 204,
+        headers,
+      };
+    } else if (path.startsWith('/applications/')) {
       const userId = pathParameters?.id;
+      if (!userId) {
+        throw new Error("Missing user ID in path parameters.");
+      }
       switch (httpMethod) {
         case 'GET':
           collection = db.collection("applications");
@@ -49,7 +60,7 @@ export const handler = async (event) => {
           query = { _id: new ObjectId(userId) };
           const updates = {
             $set: {
-              ...req.body,
+              ...body,
               status: 'Pending'
             }
           };
@@ -58,12 +69,15 @@ export const handler = async (event) => {
           await collection.updateOne(query, updates);
           break;
       }
-    } else {
+    } else if (path === '/applications') {
       switch (httpMethod) {
         case 'DELETE':
+          if (!body.ids || !Array.isArray(body.ids)) {
+            throw new Error("Invalid or missing IDs in request body.");
+          }
           query = {
             _id: {
-              "$in": req.body.ids.map((id) => new ObjectId(id))
+              "$in": body.ids.map((id) => new ObjectId(id))
             }
           };
         
@@ -80,7 +94,7 @@ export const handler = async (event) => {
           break;
         case 'POST':
           collection = db.collection("applications");
-          let newDocument = req.body;
+          let newDocument = body;
           newDocument.date = new Date();
           newDocument.status = 'Pending';
           await collection.insertOne(newDocument);
@@ -88,6 +102,9 @@ export const handler = async (event) => {
         default:
           throw new Error(`Unsupported method "${httpMethod}"`);
       }
+    } else {
+      statusCode = 404;
+      throw new Error(`Unkown path`);
     }
   } catch (err) {
     statusCode = 400;
