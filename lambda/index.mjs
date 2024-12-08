@@ -56,7 +56,7 @@ export const handler = async (event) => {
             }
           }
           break;
-        case 'PUT':
+        case 'PATCH':
           query = { _id: new ObjectId(userId) };
           const updates = {
             $set: {
