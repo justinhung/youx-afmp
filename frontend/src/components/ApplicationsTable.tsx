@@ -111,6 +111,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     rowCount,
     onRequestSort,
   } = props;
+  
   const createSortHandler =
     (property: keyof Headers) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
@@ -157,10 +158,26 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   );
 }
 interface EnhancedTableToolbarProps {
-  numSelected: number;
+  selected: readonly string[];
+  getApplications: () => Promise<void>;
 }
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected } = props;
+  const { selected, getApplications } = props;
+  const numSelected = selected.length;
+
+  const handleDelete = async () => {
+    await fetch(`${import.meta.env.VITE_API_URL}/applications`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ids: selected.map((id) => id),
+      }),
+    })
+    getApplications()
+  }
+
   return (
     <Toolbar
       sx={[
@@ -198,7 +215,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       )}
       {numSelected > 0 ? (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={() => handleDelete()}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -213,17 +230,22 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   );
 }
 
-export default function ApplicationsTable({ applications }: { applications: Application[] }) {
+export default function ApplicationsTable() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
   const [order, setOrder] = React.useState<Order>("asc");
   const [orderBy, setOrderBy] = React.useState<keyof Headers>("date");
   const [selected, setSelected] = React.useState<readonly string[]>([]);
-  const [applicationsData, setApplicationsData] = React.useState<Application[]>([]);
+  const [applications, setApplications] = React.useState<Application[]>([]);
+
+  const getApplications = async () => {
+    const results = await fetch(`${import.meta.env.VITE_API_URL}/applications`).then(resp => resp.json());
+    setApplications(results);
+  }
 
   React.useEffect(() => {
-    setApplicationsData(applications);
-  }, [applications]);
+    getApplications();
+  }, []);
 
   const handleRequestSort = (
     event: React.MouseEvent<unknown>,
@@ -236,7 +258,7 @@ export default function ApplicationsTable({ applications }: { applications: Appl
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked && selected.length === 0) {
-      const newSelected = applicationsData.map((n) => n.id);
+      const newSelected = applications.map((n) => n.id);
       setSelected(newSelected);
       return;
     }
@@ -275,14 +297,14 @@ export default function ApplicationsTable({ applications }: { applications: Appl
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - applicationsData.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - applications.length) : 0;
 
   const visibleRows = React.useMemo(() => {
-    return [...applicationsData]
+    return [...applications]
       .sort(getComparator(order, orderBy))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     }
-    ,[order, orderBy, page, rowsPerPage, applicationsData]
+    ,[order, orderBy, page, rowsPerPage, applications]
   );
 
   const formatDate = (date: string) => {
@@ -295,7 +317,7 @@ export default function ApplicationsTable({ applications }: { applications: Appl
 
   return (
     <Paper sx={{ width: "100%", overflow: "hidden" }}>
-      <EnhancedTableToolbar numSelected={selected.length} />
+      <EnhancedTableToolbar selected={selected} getApplications={getApplications} />
       <TableContainer sx={{}}>
         <Table stickyHeader aria-label="sticky table">
           <EnhancedTableHead
@@ -304,7 +326,7 @@ export default function ApplicationsTable({ applications }: { applications: Appl
             orderBy={orderBy}
             onSelectAllClick={handleSelectAllClick}
             onRequestSort={handleRequestSort}
-            rowCount={applicationsData.length}
+            rowCount={applications.length}
           />
           <TableBody>
             {visibleRows.map((row, index) => {
@@ -364,7 +386,7 @@ export default function ApplicationsTable({ applications }: { applications: Appl
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={applicationsData.length}
+        count={applications.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

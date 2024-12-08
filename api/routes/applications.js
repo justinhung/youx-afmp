@@ -58,15 +58,15 @@ router.patch("/:id", async (req, res) => {
 });
 
 // Delete applications
-router.delete("/applications", async (req, res) => {
+router.delete("/", async (req, res) => {
   const query = {
     _id: {
-      "$in": req.params.ids.map((id) => ObjectId(id))
+      "$in": req.body.ids.map((id) => new ObjectId(id))
     }
   };
 
   const collection = db.collection("applications");
-  let result = await collection.delete(query);
+  let result = await collection.deleteMany(query);
 
   res.send(result).status(200);
 });
