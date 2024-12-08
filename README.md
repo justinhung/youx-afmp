@@ -8,3 +8,4 @@
   - uses port 3333
 - to start frontend:
   - `npm run dev`
+  - uses port 5173
