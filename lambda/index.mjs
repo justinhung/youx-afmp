@@ -2,6 +2,7 @@ import { MongoClient, ObjectId } from 'mongodb'
 
 let cachedClient = null
 
+// Connect to MongoDB and allow connection pooling
 async function connectToMongoDB() {
   try {
     if (cachedClient) return cachedClient;
@@ -16,8 +17,16 @@ async function connectToMongoDB() {
   }
 }
 
+  /**
+   * Handle API Gateway events.
+   * @param {Object} event - An object containing the HTTP method, path, and request body.
+   * @returns {Object} An object with the following properties:
+   *   - statusCode: The HTTP status code for the response.
+   *   - body: The response body as a JSON string.
+   *   - headers: An object with HTTP headers.
+   */
 export const handler = async (event) => {
-  const { httpMethod, path, pathParameters, body } = event 
+  const { httpMethod, path, body } = event 
   let data, collection, query;
   let statusCode = 200;
   const headers = {
@@ -41,6 +50,7 @@ export const handler = async (event) => {
         throw new Error("Missing user ID in path parameters.");
       }
       switch (httpMethod) {
+        // get a single application
         case 'GET':
           collection = db.collection("applications");
           query = {_id: new ObjectId(userId)};
@@ -56,6 +66,7 @@ export const handler = async (event) => {
             }
           }
           break;
+        // update application
         case 'PATCH':
           query = { _id: new ObjectId(userId) };
           const updates = {
@@ -71,6 +82,7 @@ export const handler = async (event) => {
       }
     } else if (path === '/applications') {
       switch (httpMethod) {
+        // delete multiple applications
         case 'DELETE':
           const reqBody = JSON.parse(body);
           if (!reqBody.ids || !Array.isArray(reqBody.ids)) {
@@ -85,6 +97,7 @@ export const handler = async (event) => {
           collection = db.collection("applications");
           await collection.deleteMany(query);
           break;
+        // get all applications
         case 'GET':
           collection = db.collection("applications");
           let results = await collection.find({}).toArray();
@@ -93,6 +106,7 @@ export const handler = async (event) => {
             return doc
           });
           break;
+        // create a new application
         case 'POST':
           collection = db.collection("applications");
           let newDocument = JSON.parse(body)

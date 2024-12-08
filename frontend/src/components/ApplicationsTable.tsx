@@ -31,6 +31,10 @@ interface Headers {
   status: string;
 }
 
+/**
+ * This function is used to compare two objects of type T by their property given
+ * by orderBy in descending order. This is used to sort the table by a column.
+ */
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -102,6 +106,18 @@ interface EnhancedTableProps {
   rowCount: number;
 }
 
+/**
+ * Renders the table head for the applications table, allowing sorting and selection.
+ * 
+ * @param numSelected - The number of selected rows.
+ * @param onRequestSort - Callback function to request a sort operation.
+ * @param onSelectAllClick - Callback function to select all rows.
+ * @param order - The current sort order ('asc' or 'desc').
+ * @param orderBy - The column currently being sorted.
+ * @param rowCount - The total number of rows in the table.
+ * 
+ * @returns {JSX.Element} The rendered table head component.
+ */
 function EnhancedTableHead(props: EnhancedTableProps) {
   const {
     onSelectAllClick,
@@ -161,6 +177,18 @@ interface EnhancedTableToolbarProps {
   selected: readonly string[];
   getApplications: () => Promise<void>;
 }
+
+/**
+ * Custom toolbar for the EnhancedTable component.
+ *
+ * Displays the number of selected applications and a "Delete" button
+ * if applications are selected. Otherwise, it displays the title "Applications"
+ * and a "New Application" button.
+ *
+ * @param selected The selected applications' IDs.
+ * @param getApplications A function to get all applications from the API.
+ * @returns {JSX.Element}
+ */
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   const { selected, getApplications } = props;
   const numSelected = selected.length;
@@ -230,6 +258,15 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   );
 }
 
+/**
+ * Renders a table displaying application data with pagination, sorting, and selection capabilities.
+ *
+ * Manages the state for pagination, sorting, and selected application IDs. Fetches applications
+ * from the API and displays them in a paginated, sortable table. Allows users to select applications
+ * and navigate to an application detail page.
+ *
+ * @returns {JSX.Element} The rendered applications table component.
+ */
 export default function ApplicationsTable() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(25);
@@ -238,6 +275,7 @@ export default function ApplicationsTable() {
   const [selected, setSelected] = React.useState<readonly string[]>([]);
   const [applications, setApplications] = React.useState<Application[]>([]);
 
+  // fetch applications from API
   const getApplications = async () => {
     const results = await fetch(`${import.meta.env.VITE_API_URL}/applications`).then(resp => resp.json());
     setApplications(results);

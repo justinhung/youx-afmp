@@ -9,6 +9,17 @@ import {
 import { Application } from "../types";
 import { useNavigate } from "react-router-dom";
 
+/**
+ * A form for creating or editing an application. The form includes fields for
+ * name, address, salary, expenses, assets, liabilities, and amount. The form
+ * is validated client-side, and the data is sent to the API to be
+ * saved/updated.
+ *
+ * @param {Object} props - The props passed to the component.
+ * @param {Application} [props.application] - The application to edit, or null
+ *   if creating a new application.
+ * @returns {ReactElement} The rendered form.
+ */
 export default function ApplicationForm({ application }: { application?: Application | null }) {
   type Field = {
     name: 'name' | 'address' | 'salary' | 'expenses' | 'assets' | 'liabilities' | 'amount'
@@ -82,6 +93,12 @@ export default function ApplicationForm({ application }: { application?: Applica
     },
   }
 
+  /**
+   * Handles a change event for a form input. Updates the formData state
+   * accordingly and sets an error for the input if the value is empty.
+   * @param {{ target: { name: string; value: string | number; }; }} e - The event
+   * containing the input element that triggered the change
+   */
   const handleChange = (e: { target: { name: string; value: string | number; }; }) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -89,6 +106,19 @@ export default function ApplicationForm({ application }: { application?: Applica
   };
 
   const navigate = useNavigate()
+  
+  /**
+   * Handles form submission, either by creating a new application or
+   * patching an existing one.
+   *
+   * First, triggers form validation by setting the `errors` state with
+   * the current form data. Then, checks if there are any errors. If there
+   * are, does not continue with the submission.
+   *
+   * If there are no errors, sends a request to the API to either create
+   * or patch an application. If the request is successful, redirects to
+   * the homepage.
+   */
   const submit = async () => {
     // trigger form validation
     setErrors({
