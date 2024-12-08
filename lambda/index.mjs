@@ -1,15 +1,29 @@
 import { MongoClient, ObjectId } from 'mongodb'
 
-const client = new MongoClient(process.env.ATLAS_URI);
+let cachedClient = null
+
+async function connectToMongoDB() {
+  try {
+    if (cachedClient) return cachedClient;
+
+    const client = new MongoClient(process.env.ATLAS_URI);
+  
+    await client.connect();
+    cachedClient = client;
+    return client;
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 export const handler = async (event) => {
-  //console.log('Received event:', JSON.stringify(event, null, 2));
   const { httpMethod, path, pathParameters, body } = event 
   let data, collection, query;
   let statusCode = 200;
   const headers = {
       'Content-Type': 'application/json',
   };
+  const client = await connectToMongoDB()
   const db = client.db('youx-afmp')
 
   try {
