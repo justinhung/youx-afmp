@@ -36,7 +36,7 @@ export const handler = async (event) => {
         headers,
       };
     } else if (path.startsWith('/applications/')) {
-      const userId = pathParameters?.id;
+      const userId = path.split('/').pop();
       if (!userId) {
         throw new Error("Missing user ID in path parameters.");
       }
