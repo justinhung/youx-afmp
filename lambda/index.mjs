@@ -60,7 +60,7 @@ export const handler = async (event) => {
           query = { _id: new ObjectId(userId) };
           const updates = {
             $set: {
-              ...body,
+              ...JSON.parse(body),
               status: 'Pending'
             }
           };
@@ -72,12 +72,13 @@ export const handler = async (event) => {
     } else if (path === '/applications') {
       switch (httpMethod) {
         case 'DELETE':
-          if (!body.ids || !Array.isArray(body.ids)) {
+          const reqBody = JSON.parse(body);
+          if (!reqBody.ids || !Array.isArray(reqBody.ids)) {
             throw new Error("Invalid or missing IDs in request body.");
           }
           query = {
             _id: {
-              "$in": body.ids.map((id) => new ObjectId(id))
+              "$in": reqBody.ids.map((id) => new ObjectId(id))
             }
           };
         
@@ -94,7 +95,7 @@ export const handler = async (event) => {
           break;
         case 'POST':
           collection = db.collection("applications");
-          let newDocument = body;
+          let newDocument = JSON.parse(body)
           newDocument.date = new Date();
           newDocument.status = 'Pending';
           await collection.insertOne(newDocument);
