@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb'
 
-const client = new MongoClient(connectionString);
+const client = new MongoClient(process.env.ATLAS_URI);
 
 export const handler = async (event) => {
   //console.log('Received event:', JSON.stringify(event, null, 2));
