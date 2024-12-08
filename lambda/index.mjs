@@ -6,10 +6,11 @@ export const handler = async (event) => {
   //console.log('Received event:', JSON.stringify(event, null, 2));
   const { httpMethod, path, pathParameters, body } = event 
   let data, collection, query;
-  let statusCode = '200';
+  let statusCode = 200;
   const headers = {
       'Content-Type': 'application/json',
   };
+  const db = client.db('youx-afmp')
 
   try {
     if (path.startsWith('/applications/')) {
@@ -22,7 +23,7 @@ export const handler = async (event) => {
 
           if (!result) {
             data = "Not found"
-            statusCode = '404'
+            statusCode = 404
           } else {
             data = {
               ...result,
@@ -75,15 +76,15 @@ export const handler = async (event) => {
       }
     }
   } catch (err) {
-    statusCode = '400';
-    data = err.message;
+    statusCode = 400;
+    data = { error: err.message };
   } finally {
     data = JSON.stringify(data);
   }
 
   return {
     statusCode,
-    data,
+    body: data,
     headers,
   };
 };
