@@ -1,0 +1,177 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Applications API",
+    "description": "API for managing applications",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://468r8e6iy3.execute-api.ap-southeast-2.amazonaws.com/default"
+    }
+  ],
+  "paths": {
+    "/applications": {
+      "get": {
+        "summary": "Retrieve a list of all applications",
+        "responses": {
+          "200": {
+            "description": "A list of applications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Application"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new application",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Application"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Application created successfully"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete multiple applications",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Applications deleted successfully"
+          }
+        }
+      }
+    },
+    "/applications/{userId}": {
+      "get": {
+        "summary": "Retrieve a single application by ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A single application",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Application"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Application not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update an application",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Application"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Application updated successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Application": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "salary": {
+            "type": "number"
+          },
+          "expenses": {
+            "type": "number"
+          },
+          "assets": {
+            "type": "number"
+          },
+          "liabilities": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

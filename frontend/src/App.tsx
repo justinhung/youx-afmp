@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import NewApplication from "./pages/NewApplication";
 import ViewApplication from "./pages/ViewApplication";
+import Swagger from "./pages/Swagger";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/application/new" element={<NewApplication />} />
         <Route path="/application/:id" element={<ViewApplication />} />
+        <Route path="/swagger" element={<Swagger />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
