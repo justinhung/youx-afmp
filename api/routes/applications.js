@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Get all applications
 router.get("/", async (req, res) => {
-  let collection = await db.collection("applications");
+  let collection = db.collection("applications");
   let results = await collection.find({})
     .toArray()
   res.send(results.map((doc) => {
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 
 // Get a single application
 router.get("/:id", async (req, res) => {
-  let collection = await db.collection("applications");
+  let collection = db.collection("applications");
   let query = {_id: new ObjectId(req.params.id)};
   let result = await collection.findOne(query);
 
@@ -33,7 +33,7 @@ router.get("/:id", async (req, res) => {
 
 // Add a new document to the collection
 router.post("/", async (req, res) => {
-  let collection = await db.collection("applications");
+  let collection = db.collection("applications");
   let newDocument = req.body;
   newDocument.date = new Date();
   newDocument.status = 'Pending';
@@ -51,7 +51,7 @@ router.patch("/:id", async (req, res) => {
     }
   };
 
-  let collection = await db.collection("applications");
+  let collection = db.collection("applications");
   let result = await collection.updateOne(query, updates);
 
   res.send(result).status(200);

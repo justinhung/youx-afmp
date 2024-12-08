@@ -9,3 +9,6 @@
 - to start frontend:
   - `npm run dev`
   - uses port 5173
+
+## Deployment
+- Frontend is deployed on AWS Amplify and will build and redeploy when pushed to main
