@@ -338,6 +338,8 @@ export default function ApplicationsTable() {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - applications.length) : 0;
 
   const visibleRows = React.useMemo(() => {
+    console.log('applications', applications)
+    if (!applications || !Array.isArray(applications)) return []
     return [...applications]
       .sort(getComparator(order, orderBy))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
